@@ -1,6 +1,5 @@
 import express from "express";
 import cors from "cors";
-import bodyParser from "body-parser";
 import "dotenv/config";
 import dotenv from "dotenv";
 import {connectDatabase} from "./config/database.js";
@@ -12,10 +11,6 @@ dotenv.config({path:"./config/config.env"});
 await connectDatabase();
 
 const app = express();
-let corsOptions = {
-    origin :["http://localhost:4002"],
-}
-
 
 app.use(cors({
     origin :["http://localhost:5173"], // your frontend URL
@@ -23,9 +18,8 @@ app.use(cors({
     credentials: true
 }));
 
-app.use(bodyParser.json({extended:true}));
-app.use(bodyParser.urlencoded({extended:true}));
-app.use(express.urlencoded({extended:false}));
+app.use(express.json());
+app.use(express.urlencoded({extended:true}));
 
 app.use('/', routers);
 

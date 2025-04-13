@@ -12,8 +12,22 @@ export const insertPhoneOtp = async (phone, otp) => {
 export const verifyPhoneOtp = async (phone, otp) => {
   const db = getDB();
   const [row] = await db.execute(
-    "SELECT * FROM userData WHERE phone = ? AND otp = ?",
+    "SELECT phone, otp, user_role FROM userData WHERE phone = ? AND otp = ?",
     [phone, otp]
   );
-  return row?.length > 0;
+  console.log("Query:", row);
+  if (row?.length > 0) {
+    let role = phone === "8928039177" ? "Admin" : "User";
+    await db.execute("UPDATE userData SET user_role = ? WHERE phone = ?", [
+      role,
+      phone,
+    ]);
+    console.log(`Role assign: ${role}`);
+    return {
+      success: true,
+      phone: phone,
+      role: role,
+    };
+  }
+  return { sucess: false, message: "Invalid OTP" };
 };

@@ -1,1 +1,5 @@
-export const HOME_PATH = "/home"
+export const HOME_PATH = "/"
+export const PRODUCT_PATH = "/product"
+export const PRODUCT_HOME_PATH = "/product-home"
+export const ADD_PRODUCT_PATH = "/add-product"
+export const ADDED_CART_PRODUCT_PATH = "/added-product-cart"

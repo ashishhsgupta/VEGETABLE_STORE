@@ -8,11 +8,11 @@ import linkedin from "../images/ldin.png";
 
 const Footer = () => {
   return (
-    <div className="bg-dark">
+    <div className="footerMainContainer bg-dark">
       <div className="container text-light footerContainer">
         <div className="row footerSocialMedia">
           <div className="col-sm-3">
-            <h4 className="text-warning">Eat Fresh, Live Fresh - </h4>
+            <h4 className="text-warning">Eat Green, Live Green - </h4>
           </div>
 
           <div className="col-sm-3">
