@@ -266,10 +266,10 @@ const Product = () => {
                   <p className='itemDes'>{item.item_description}</p>
                   <p><strong>Item ID: {item.item_id}</strong></p>
                   <p className='stockQuantity'>
-                    <strong>Total quantity: {item.stock_quantity}</strong>
+                    <strong>Stock quantity: {item.stock_quantity}</strong>
                   </p>
                   <h6 className='bg-primary text-center p-1 text-white'>
-                    ₹ {item.item_price} / 500g
+                    ₹ {item.item_price} / 500g ( per quantity)
                   </h6><br/>
                   &nbsp;
                  
