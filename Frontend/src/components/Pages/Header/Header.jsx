@@ -15,7 +15,7 @@ import {
   setSearchItem,
   selectSearchItem
 } from '../Redux/counterSlice/cartSlice'
-import { ADDED_CART_PRODUCT_PATH } from '../Router/Router-Constant'
+import { ADDED_CART_PRODUCT_PATH, HOME_PATH, PRODUCT_PATH } from '../Router/Router-Constant'
 
 const Header = () => {
   const navigate = useNavigate('')
@@ -52,7 +52,7 @@ const Header = () => {
 
     alert('logout successfully')
     setTimeout(() => {
-      navigate('/')
+      navigate(HOME_PATH)
     }, 100)
     console.log('locastorage after logout:', localStorage.getItem('userRole'))
   }
@@ -141,7 +141,7 @@ const Header = () => {
           console.log('Role Set:', response.data.role)
           alert('OTP verified successfully')
           setShowModal(false)
-          navigate('/product')
+          navigate(PRODUCT_PATH)
         } else {
           alert(response.data.message)
         }
@@ -154,11 +154,16 @@ const Header = () => {
       }
     }
   }
+
+  const handleHome = () => {
+    navigate(PRODUCT_PATH)
+  }
+
   return (
     <>
       <div className='containerFluid bg-dark'>
         <div className='col d-flex justify-content-between align-items-center w-100'>
-          <div className='row-lg-2'>
+          <div onClick={handleHome} className='row-lg-2' style={{cursor:"pointer"}}>
             <img
               src={imgURL}
               alt='img'

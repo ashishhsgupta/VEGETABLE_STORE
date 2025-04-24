@@ -87,6 +87,7 @@ svg.modalBtn {
   width: 22%;
   border: 1px solid rgb(204, 201, 201);
   text-align: center;
+  line-height: 1;
 }
 .homeImg {
   width: 100%;
@@ -159,4 +160,14 @@ svg.modalBtn {
 }
 .cartProductContent{
   align-content: center;
+}
+.productClearOrderBtn{
+  position: relative !important;
+    justify-content: space-between;
+    padding: 0px 22px 0px 22px;
+}
+.removeItem{
+  cursor: pointer;
+  color: red;
+  font-weight: 500;
 }

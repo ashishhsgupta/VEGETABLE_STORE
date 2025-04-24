@@ -10,12 +10,16 @@ export const cartSlice = createSlice({
   reducers: {
     addToCart: (state, action) => {
       const selectedProduct = action.payload
-      state.items.push(selectedProduct)
+      state.items.push({...selectedProduct, quantity:selectedProduct.quantity ?? 0, weight:selectedProduct.weight ?? 0});
     },
-    purchaseItem: (state, action) => {
+    removeProduct:(state,action) => {
+      const removeItem = action.payload
+      state.items = state.items.filter(item => item.item_id !== removeItem.item_id);
+    },
+    increaseItem: (state, action) => {
       const newItem = action.payload
       if (!newItem || !newItem.item_id) {
-        console.error('purchaseItem: invalid payload', newItem)
+        console.error('increaseItem: invalid payload', newItem)
         return
       }
       const existing = state.items.find(
@@ -62,6 +66,10 @@ export const cartSlice = createSlice({
         }
       }
     },
+    orderItem:(state,action) =>{
+      const selectedItem = action.payload
+      state.items.push(selectedItem);
+    },
     clearCart: state => {
       state.items = []
       state.totalPrice = 0
@@ -80,8 +88,9 @@ export const selectSearchItem = state => state.cart.searchTerm
 
 export const {
   addToCart,
-  purchaseItem,
-  decreaseItem,
+  removeProduct,
+  increaseItem,
+  decreaseItem, orderItem,
   clearCart,
   setSearchItem
 } = cartSlice.actions

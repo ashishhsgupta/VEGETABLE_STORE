@@ -1,5 +1,6 @@
 import { getDB } from '../config/database.js'
 import { insertPhoneOtp, verifyPhoneOtp } from '../modal/userSchema.js'
+//import { product } from './../../Frontend/src/components/Pages/Product/dummyProducts';
 
 export const sendOTP = async (req, res) => {
   const { phone } = req.body
@@ -63,7 +64,10 @@ export const insertProducts = async (req, res) => {
       inserted: result.affectedRows
     })
   } catch (err) {
-    console.error('Insert error:', err.message)
+    console.error('Insert error:', err.message);
+    if(err.code === 'ER_DUP_ENTRY'){
+      return res.status(409).json({error: 'Item ID already exists'});
+    }
     res.status(500).json({ error: 'Failed to insert products' })
   }
 }
@@ -124,31 +128,102 @@ export const updateProducts = async (req, res) => {
       message: 'Item updated successfully',
       inserted: result.affectedRows
     })
-
     console.log('Product updated successfully')
-    // return res.status(200).json({ message: "Product updated successfully", result });
   } catch (error) {
     console.error('Unexpected error:', error)
     res.status(500).json({ message: 'Unexpected server error', error })
   }
 }
 
-//   const db = getDB();
-//   const {id} = req.params;
-//   const {item_category, item_name, item_img, item_description, item_price} = req.body;
-//   console.log("Incoming update request for ID:", id);
-//     console.log("Request body:", req.body);
-//   const sql = `UPDATE products SET item_category = ?, item_name = ?, item_img= ?,
-//   item_description = ?, item_price =? WHERE item_id = ?`;
-//   db.query(sql, [item_category, item_name, item_img, item_description, item_price, id],
-//   (err, result) => {
-//     if(err){
-//       console.error("DB error", err);
-//       return res.status(500).json({message:"DB error", error:err});
-//     }
-//     if(result.affectedRows === 0){
-//       return res.status(404).json({message: "No product found with this given ID"});
-//     }
+export const deleteProduct = async(req, res) => {
+  const { item_id } = req.params;
 
-//   });
-// }
+  if(!item_id){
+    return res.status(400).json({error: 'Item ID is required'});
+  }
+  try{
+    const db = getDB();
+    const [result] = await db.query('DELETE FROM PRODUCTS WHERE item_id = ? ', [item_id]);
+
+    if(result.affectedRows === 0 ){
+      return res.status(404).json({error: 'Item ID not found'});
+    }
+    res.status(200).json({message: 'Product deleted successfully'});
+  }catch(error){
+   console.error('Delete error:', err.message);
+   res.status(500).json({error: 'Failed to delete product'});
+  }
+};
+
+export const orderItems = async (req, res) => {
+  const connection = getDB();
+  await connection.beginTransaction();
+
+  try {
+    const { user, items } = req.body;
+    let totalAmount = 0;
+    let itemWeight = 0;
+
+    for (let item of items) {
+      const [productRows] = await connection.query(
+        'SELECT stock_quantity, item_price FROM products WHERE item_id = ?',
+        [item.productId]
+      );
+
+      if (productRows.length === 0) {
+        throw new Error(`Product ID ${item.productId} not found`)
+      }
+
+      const product = productRows[0];
+
+      if (product.stock_quantity < item.quantity) {
+        throw new Error(`Insufficient stock for Product ID ${item.productId}`)
+      }
+
+      await connection.query(
+        'UPDATE products SET stock_quantity = stock_quantity - ? WHERE item_id = ?',
+        [item.quantity, item.productId]
+      );
+
+      totalAmount += item.quantity * product.item_price;
+      itemWeight += parseFloat(item.weight || 0);
+    }
+
+    const orderNumber = 'ORD-' + Date.now()
+    const [orderResult] = await connection.query(
+      `INSERT INTO order_address (order_number, user_name, user_phone, user_address, item_weight, total_amount)
+       VALUES (?, ?, ?, ?, ?, ?)`,
+      [
+        orderNumber,
+        user.name,
+        user.phone,
+        user.address,
+        itemWeight,
+        totalAmount
+      ]
+    )
+
+    const orderId = orderResult.insertId
+
+    for (let item of items) {
+      const [productRows] = await connection.query(
+        'SELECT item_price FROM products WHERE item_id = ?',
+        [item.productId]
+      )
+      const product = productRows[0]
+
+      await connection.query(
+        `INSERT INTO order_items (order_id, product_id, quantity, price)
+         VALUES (?, ?, ?, ?)`,
+        [orderId, item.productId, item.quantity, product.item_price]
+      )
+    }
+
+    await connection.commit()
+    res.status(201).json({ message: 'Order placed successfully', orderNumber })
+  } catch (err) {
+    await connection.rollback()
+    console.error('Order placing failed:', err)
+    res.status(500).json({ message: err.message })
+  }
+}
