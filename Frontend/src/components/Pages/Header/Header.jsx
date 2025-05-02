@@ -162,6 +162,17 @@ const Header = () => {
   return (
     <>
       <div className='containerFluid bg-dark'>
+
+{/* <div className='row'>  
+        <div className='col-sm-3 col-md-6 col-lg-12'>
+          Ashish1
+        </div>
+        <div className='col-sm-3 col-md-6 col-lg-12'>
+          Ashish2
+        </div>
+</div> */}
+
+
         <div className='col d-flex justify-content-between align-items-center w-100'>
           <div onClick={handleHome} className='row-lg-2' style={{cursor:"pointer"}}>
             <img

@@ -213,9 +213,9 @@ export const orderItems = async (req, res) => {
       const product = productRows[0]
 
       await connection.query(
-        `INSERT INTO order_items (order_id, product_id, quantity, price)
-         VALUES (?, ?, ?, ?)`,
-        [orderId, item.productId, item.quantity, product.item_price]
+        `INSERT INTO order_items (order_number, order_id, product_id, quantity, price)
+         VALUES (?, ?, ?, ?, ?)`,
+        [orderNumber, orderId, item.productId, item.quantity, product.item_price]
       )
     }
 

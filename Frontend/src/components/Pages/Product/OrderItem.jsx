@@ -52,15 +52,16 @@ const OrderItem = () => {
         }
       );
       alert(`Order placed successfully! order No: ${response.data.orderNumber}`)
-      navigate(PRODUCT_PATH)
-      window.location.reload(); 
       setError('');
+      navigate(PRODUCT_PATH);
+      //window.location.reload(); 
+      
     } catch (error) {
       console.error(
         'Error placing order:',
         error?.response?.data?.message || error.message || 'unknown error'
       );
-      alert('Failed to place order.:', + (error?.response?.data?.message || error.message || 'unknown error'));
+      alert('Failed to place order:' + (error?.response?.data?.message || error.message || 'unknown error'));
     }
   };
 
