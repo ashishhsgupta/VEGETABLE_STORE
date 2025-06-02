@@ -1,10 +1,14 @@
 import React, { useState } from 'react'
-import { useSelector } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import { Navigate, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { PRODUCT_PATH } from '../Router/Router-Constant';
+import { clearCart } from '../Redux/counterSlice/cartSlice';
 
 const OrderItem = () => {
+
+  const dispatch = useDispatch();
+
   const navigate = useNavigate('');
   const items = useSelector(state => state.cart.items)
   const totalPrice = useSelector(state => state.cart.totalPrice)
@@ -52,6 +56,7 @@ const OrderItem = () => {
         }
       );
       alert(`Order placed successfully! order No: ${response.data.orderNumber}`)
+      dispatch(clearCart());
       setError('');
       navigate(PRODUCT_PATH);
       //window.location.reload(); 

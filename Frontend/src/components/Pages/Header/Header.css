@@ -1,3 +1,5 @@
+
+
 .headerTopImg {
   /* filter: brightness(0) invert(1); */
   /* color: var(--bs-primary); */
@@ -82,9 +84,12 @@ svg.modalBtn {
 .homeItems {
   background: rgb(248, 246, 246);
   border-radius: 7px;
-  padding: 15px;
+  margin: 14px 7px 14px 7px;
+  padding-bottom: 15px;
+    /* margin-bottom: 25px; */
+  /* padding: 15px;
   margin: 15px;
-  width: 22%;
+  width: 22%; */
   border: 1px solid rgb(204, 201, 201);
   text-align: center;
   line-height: 1;
@@ -98,7 +103,9 @@ svg.modalBtn {
   transition: transform 0.4s ease;
 }
 .homeImg:hover{
-  transform: scale(1.1);
+  transform: scale(1.02);
+  box-shadow: 0px 0px 5px 1px rgb(232, 232, 235);
+  background: white;
 }
 .imgContainer {
   background-color: #fff;

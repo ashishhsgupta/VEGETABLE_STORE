@@ -73,7 +73,7 @@ const AddedCartproduct = ({ item }) => {
           {filteredItems.map(item => (
             <div
               key={item.item_id}
-              className='cartProductKey col-5 border rounded p-2 text-center mb-4 bg-white'
+              className='cartProductKey col-6 border rounded p-2 text-center mb-4 bg-white'
             >
               <div className='cartContainerDisplay d-flex w-100'>
                 <div className='cartContainerImg p-2 w-50 me-2'>

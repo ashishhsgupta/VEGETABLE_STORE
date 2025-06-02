@@ -1,5 +1,24 @@
-
-@media screen and (min-width) {
-    
+@media (min-width:360px) and (max-width: 430px) {
+  .headerTopImg {
+    display: none !important;
+    background: red;
+  }
+  .homeMarquee {
+    position: sticky;
+    top: 170px;
+    z-index: 999;
 }
-    
+.homeImg {
+    /* width: 100%; */
+    height: auto;
+    /* border-radius: 5px;
+    cursor: pointer;
+    padding-bottom: 10px; */
+}
+.productName, .itemDes, .stockQuantity, .productQty{
+  word-wrap: break-word;
+}
+.buttonItem{
+  padding: 0px;
+}
+}

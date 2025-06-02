@@ -1,6 +1,7 @@
 import React, { useContext, useEffect, useState, memo } from 'react'
 import imgURL from '../images/veggie.png'
 import './Header.css'
+import '../../Styles/Style.css';
 import { Link, useNavigate } from 'react-router-dom'
 import { FaCircleUser } from 'react-icons/fa6'
 import { Modal } from 'react-bootstrap'
@@ -15,7 +16,11 @@ import {
   setSearchItem,
   selectSearchItem
 } from '../Redux/counterSlice/cartSlice'
-import { ADDED_CART_PRODUCT_PATH, HOME_PATH, PRODUCT_PATH } from '../Router/Router-Constant'
+import {
+  ADDED_CART_PRODUCT_PATH,
+  HOME_PATH,
+  PRODUCT_PATH
+} from '../Router/Router-Constant'
 
 const Header = () => {
   const navigate = useNavigate('')
@@ -42,6 +47,9 @@ const Header = () => {
   }
 
   const handleLogout = () => {
+    const confirmLogout =  window.confirm('are you sure you want to logout?');
+
+    if(confirmLogout){
     localStorage.removeItem('userRole')
     localStorage.removeItem('userPhone')
     localStorage.removeItem('isLogin')
@@ -49,12 +57,14 @@ const Header = () => {
     setPhone(null)
     setRole(null)
     setUserRole('')
-
     alert('logout successfully')
     setTimeout(() => {
       navigate(HOME_PATH)
     }, 100)
     console.log('locastorage after logout:', localStorage.getItem('userRole'))
+  }else{
+    console.log('Logout calcelled by user.')
+  }
   }
 
   const handleClose = () => {
@@ -162,19 +172,12 @@ const Header = () => {
   return (
     <>
       <div className='containerFluid bg-dark'>
-
-{/* <div className='row'>  
-        <div className='col-sm-3 col-md-6 col-lg-12'>
-          Ashish1
-        </div>
-        <div className='col-sm-3 col-md-6 col-lg-12'>
-          Ashish2
-        </div>
-</div> */}
-
-
-        <div className='col d-flex justify-content-between align-items-center w-100'>
-          <div onClick={handleHome} className='row-lg-2' style={{cursor:"pointer"}}>
+        <div className='row d-flexes justify-content-between align-items-center w-100'>
+          <div
+            onClick={handleHome}
+            className='col-sm-2 col-md-2 col-lg-2 headerImg'
+            style={{ cursor: 'pointer' }}
+          >
             <img
               src={imgURL}
               alt='img'
@@ -182,7 +185,7 @@ const Header = () => {
             />
           </div>
 
-          <div className='row-lg-2 d-flex'>
+          <div className='col-sm-2 col-md-2 col-lg-2'>
             <input
               type='search'
               id='form1'
@@ -195,7 +198,7 @@ const Header = () => {
           </div>
           {role && role.toLowerCase().trim() === 'user' && (
             <>
-              <div className='row-lg-2'>
+              <div className='col-sm-3 col-md-3 col-lg-3'>
                 <button className='btn btn-warning'>
                   <h6>
                     Cart item total price : ₹ {Number(totalPrice).toFixed(2)}
@@ -203,7 +206,7 @@ const Header = () => {
                 </button>
               </div>
 
-              <div className='row-lg-2'>
+              <div className='col-sm-2 col-md-2 col-lg-2'>
                 <Link to={ADDED_CART_PRODUCT_PATH} className='right'>
                   <button
                     type='button'
@@ -221,7 +224,7 @@ const Header = () => {
               </div>
             </>
           )}
-          <div className='userLogin col-lg-2 text-white position-relative'>
+          <div className='userLogin col-sm-2 col-md-2 col-lg-2 text-white position-relative'>
             {isLogin ? (
               <>
                 <div className='me-4'>

@@ -72,6 +72,23 @@ export const insertProducts = async (req, res) => {
   }
 }
 
+export const getPaginatedProducts = async (req, res) => {
+  const start = parseInt(req.query.start) || 0;
+  const limit = parseInt(req.query.limit) || 6;
+
+  try{
+   const db = getDB();
+   const [products] = await db.query(
+    `SELECT * FROM PRODUCTS LIMIT ? OFFSET ? `, 
+    [limit, start]
+   );
+   res.status(200).json(products);
+  }catch(err){
+    console.error("Fetch error:", err.message);
+    res.status(500).json({error: "Failed to fetch products"});
+  }
+};
+
 export const fetchProducts = async (req, res) => {
   try {
     const db = await getDB()
@@ -149,7 +166,7 @@ export const deleteProduct = async(req, res) => {
       return res.status(404).json({error: 'Item ID not found'});
     }
     res.status(200).json({message: 'Product deleted successfully'});
-  }catch(error){
+  }catch(err){
    console.error('Delete error:', err.message);
    res.status(500).json({error: 'Failed to delete product'});
   }

@@ -1,13 +1,24 @@
-import React from "react";
+import React, { Suspense, lazy } from "react";
 import {createBrowserRouter} from "react-router-dom";
 import DefaultLayout from "../Header/DefaultLayout";
 import {ADDED_CART_PRODUCT_PATH, HOME_PATH, ORDER_ITEMS_PATH, PRODUCT_HOME_PATH, PRODUCT_PATH }
 from "../Router/Router-Constant.jsx";
 import Home from "../Home/Home.jsx";
 import Producthome from "../Product/Producthome.jsx";
-import Product from "../Product/Product.jsx";
+//import Product from "../Product/Product.jsx";
 import AddedCartproduct from "../Product/AddedCartProduct.jsx";
 import OrderItem from "../Product/OrderItem.jsx";
+
+const Product = lazy(()=>import('../Product/Product.jsx'));
+
+// const withSuspense = (LazyComponent) => {
+//   return () => (
+//     <Suspense fallback={<div>Loading....</div>}>
+//       <LazyComponent />
+//     </Suspense>
+//   );
+// };
+    
 
 
 
@@ -26,7 +37,11 @@ const router = createBrowserRouter([
       },
       {
         path : PRODUCT_PATH,
-        element: <Product />
+        element: (
+          <Suspense fallback={<div>Loading...</div>}>
+            <Product />
+          </Suspense>
+        ),
       },
       {
         path : ADDED_CART_PRODUCT_PATH,

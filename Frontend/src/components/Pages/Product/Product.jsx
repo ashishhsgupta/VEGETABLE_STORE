@@ -13,10 +13,19 @@ import {
   selectSearchItem
 } from '../Redux/counterSlice/cartSlice'
 
+const ITEM_PER_LOAD = 6
+
 const Product = () => {
   const navigate = useNavigate()
   const [userRole, setUserRole] = useState('')
   const [product, setProduct] = useState([])
+  const [start, setStart] = useState(0)
+  const [hasMore, setHasMore] = useState(true)
+  const [isLoading, setIsLoading] = useState(false)
+
+  const [showModal, setShowModal] = useState(false)
+  const [selectedProduct, setSelectedProduct] = useState(null)
+  const [showAddProductModal, setShowAddProductModal] = useState(false)
 
   const dispatch = useDispatch()
   const cart = useSelector(selectedCartItems)
@@ -98,7 +107,21 @@ const Product = () => {
       console.log('itemId value:', addProductData.itemId)
       setError('')
       alert('Product added successfully.')
-      window.location.reload()
+      handleClose()
+      setAddProductData({
+        itemId: '',
+        itemCategory: '',
+        itemName: '',
+        itemImgLink: '',
+        itemDescription: '',
+        itemPrice: '',
+        itemStockQuantity: ''
+      })
+      setProduct([])
+      setStart(0)
+      setHasMore(true)
+      fetchProducts(0)
+      console.log('Product submitted, closing modal now')
     } catch (error) {
       console.error(
         'Error white insert product:',
@@ -112,19 +135,65 @@ const Product = () => {
     }
   }
 
-  useEffect(() => {
-    const fetchProducts = async () => {
-      try {
-        const res = await axios.get(
-          `http://localhost:4002/vegies/v1/api/products`
-        )
-        setProduct(res.data)
-      } catch (err) {
-        console.error('Error fetching data from API', err.message)
+  const fetchProducts = async (startIndex = start) => {
+    if (isLoading || !hasMore) return
+
+    setIsLoading(true)
+    try {
+      const res = await axios.get(
+        'http://localhost:4002/vegies/v1/api/products',
+        {
+          params: {
+            start: startIndex,
+            limit: ITEM_PER_LOAD
+          }
+        }
+      )
+
+      const data = res.data
+
+      if (data.length < ITEM_PER_LOAD) {
+        setHasMore(false)
       }
+      if (startIndex === 0) {
+        setProduct(data)
+      } else {
+        setProduct(prev => [...prev, ...data])
+      }
+      setStart(prev => startIndex + ITEM_PER_LOAD)
+    } catch (err) {
+      console.error('Error fetching products:', err.message)
+    } finally {
+      setIsLoading(false)
     }
+  }
+  useEffect(() => {
     fetchProducts()
   }, [])
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const scrollTop = window.scrollY
+      const windowHeight = window.innerHeight
+      const doHeight = document.documentElement.scrollHeight
+
+      if (scrollTop + windowHeight + 100 >= doHeight) {
+        fetchProducts()
+      }
+    }
+    window.addEventListener('scroll', handleScroll)
+    return () => window.removeEventListener('scroll', handleScroll)
+  }, [hasMore, isLoading])
+
+  // useEffect(() => {
+  //   const phone = localStorage.getItem('userPhone');
+  //   if (phone) {
+  //     const savedCart = JSON.parse(localStorage.getItem(`cart_${phone}`));
+  //     if (savedCart) {
+  //       dispatch(addToCart(savedCart));
+  //     }
+  //   }
+  // }, []);
 
   useEffect(() => {
     const storedRole = localStorage.getItem('userRole')
@@ -134,10 +203,6 @@ const Product = () => {
       setUserRole('')
     }
   }, [])
-
-  const [showModal, setShowModal] = useState(false)
-  const [selectedProduct, setSelectedProduct] = useState(null)
-  const [showAddProductModal, setShowAddProductModal] = useState(false)
 
   const handleUpdateProduct = product => {
     setSelectedProduct(product)
@@ -223,20 +288,23 @@ const Product = () => {
     }
   }
 
-
-  const handleDeleteProduct = async(itemId) => {
-    const isConfirmed = window.confirm('Are you sure want to delete this Product?')
-    if(!isConfirmed) return;
-    try{
-      const res = await axios.delete(`http://localhost:4002/vegies/v1/api/deleteProduct/${itemId}`);
-      console.log('delete product:', res.data);
-      alert('Product deleted successfully');
-      window.location.reload();
-    }catch(error){
+  const handleDeleteProduct = async itemId => {
+    const isConfirmed = window.confirm(
+      'Are you sure want to delete this Product?'
+    )
+    if (!isConfirmed) return
+    try {
+      const res = await axios.delete(
+        `http://localhost:4002/vegies/v1/api/deleteProduct/${itemId}`
+      )
+      console.log('delete product:', res.data)
+      alert('Product deleted successfully')
+      window.location.reload()
+    } catch (error) {
       console.error('Error while delete item', error.message)
-      alert('Failed to delete product.');
+      alert('Failed to delete product.')
     }
-  };
+  }
 
   return (
     <>
@@ -256,47 +324,69 @@ const Product = () => {
             </div>
             {filteredItems.length > 0 ? (
               filteredItems.map(item => (
-                <div key={item.item_id} className='col-2 homeItems'>
-                  <img
-                    src={item.item_img}
-                    alt='img'
-                    className='img-fluid homeImg'
-                  />
-                  <h5 className='text-centered'>{item.item_name}</h5>
-                  <p className='itemDes'>{item.item_description}</p>
-                  <p><strong>Item ID: {item.item_id}</strong></p>
-                  <p className='stockQuantity'>
-                    <strong>Stock quantity: {item.stock_quantity}</strong>
-                  </p>
-                  <h6 className='bg-primary text-center p-1 text-white'>
-                    ₹ {item.item_price} / 500g ( per quantity)
-                  </h6><br/>
-                  &nbsp;
-                 
-                  <button
-                    onClick={() => {
-                      if (!userRole) {
-                        alert('Login is required')
-                        return
-                      }
-                      if (userRole === 'Admin') {
-                        handleUpdateProduct(item)
-                      } else {
-                        handleAddToCart(item)
-                      }
-                    }}
-                    type='button'
-                    className='btn btn-warning me-2'
-                  >
-                    {userRole === 'Admin' ? 'EDIT' : 'ADD ITEM'}
-                  </button>
-                  {userRole === 'Admin' ? (
-                    <button onClick={() => handleDeleteProduct(item.item_id)} type='button' className='btn btn-danger'>DELETE</button>
-                  ): ''}
+                <div key={item.item_id} className='col-md-3'>
+                  <div className='homeItems mb-4'>
+                    <img
+                      src={item.item_img}
+                      alt='img'
+                      className='img-fluid homeImg'
+                    />
+                    <h5 className='text-centered productName'>
+                      {item.item_name}
+                    </h5>
+                    <p className='itemDes'>{item.item_description}</p>
+                    <p>
+                      <strong>Item ID: {item.item_id}</strong>
+                    </p>
+                    <p className='stockQuantity'>
+                      <strong>Stock quantity: {item.stock_quantity}</strong>
+                    </p>
+                    <h6 className='bg-primary text-center p-1 text-white productQty'>
+                      ₹ {item.item_price} / 500g ( per quantity)
+                    </h6>
+                    <br />
+                    &nbsp;
+                    <button
+                      onClick={() => {
+                        if (!userRole) {
+                          alert('Login is required')
+                          return
+                        }
+                        if (userRole === 'Admin') {
+                          handleUpdateProduct(item)
+                        } else {
+                          handleAddToCart(item)
+                        }
+                      }}
+                      type='button'
+                      className='btn btn-warning me-2 buttonItem'
+                    >
+                      {userRole === 'Admin' ? 'EDIT' : 'ADD ITEM'}
+                    </button>
+                    {userRole === 'Admin' ? (
+                      <button
+                        onClick={() => handleDeleteProduct(item.item_id)}
+                        type='button'
+                        className='btn btn-danger'
+                      >
+                        DELETE
+                      </button>
+                    ) : (
+                      ''
+                    )}
+                  </div>
                 </div>
               ))
             ) : (
-              <span>Loading...</span>
+              <span></span>
+            )}
+            {isLoading && (
+              <div className='text-center my-4'>Loading more...</div>
+            )}
+            {!hasMore && (
+              <div className='text-center my-4 text-grey-500'>
+                No more products
+              </div>
             )}
           </div>
         </div>
@@ -392,7 +482,7 @@ const Product = () => {
       </Modal>
 
       <Modal show={showAddProductModal} onHide={handleClose} size='lg'>
-        <Modal.Header className="bg-warning p-2">
+        <Modal.Header className='bg-warning p-2'>
           <Modal.Title>
             <p>Add a new product.</p>
           </Modal.Title>
@@ -400,131 +490,131 @@ const Product = () => {
         </Modal.Header>
         <Modal.Body>
           <div className='addProductContainer border rounded p-2'>
-          <form className='lh-lg' onSubmit={handleSubmit}>
-            <div className='row'>
-              <div className='form-group col-md-6'>
-                <label htmlFor='inputName4'>
-                  <strong>
-                    Item ID<span className='text-danger'>*</span>
-                  </strong>
-                </label>
-                <input
-                  type='number'
-                  name='itemId'
-                  value={addProductData.itemId}
-                  onChange={handleChange}
-                  className='form-control bg-light'
-                  id='inputItem4'
-                  placeholder='Enter new item ID'
-                />
+            <form className='lh-lg' onSubmit={handleSubmit}>
+              <div className='row'>
+                <div className='form-group col-md-6'>
+                  <label htmlFor='inputName4'>
+                    <strong>
+                      Item ID<span className='text-danger'>*</span>
+                    </strong>
+                  </label>
+                  <input
+                    type='number'
+                    name='itemId'
+                    value={addProductData.itemId}
+                    onChange={handleChange}
+                    className='form-control bg-light'
+                    id='inputItem4'
+                    placeholder='Enter new item ID'
+                  />
+                </div>
+                <div className='form-group col-md-6'>
+                  <label htmlFor='inputPhone4'>
+                    <strong>
+                      Item Category<span className='text-danger'>*</span>
+                    </strong>
+                  </label>
+                  <input
+                    type='text'
+                    name='itemCategory'
+                    value={addProductData.itemCategory}
+                    onChange={handleChange}
+                    className='form-control bg-light'
+                    id='inputCategory4'
+                    placeholder='Enter item category'
+                  />
+                </div>
+                <div className='form-group col-md-6'>
+                  <label htmlFor='inputPhone4'>
+                    <strong>
+                      Item name<span className='text-danger'>*</span>
+                    </strong>
+                  </label>
+                  <input
+                    type='text'
+                    name='itemName'
+                    value={addProductData.itemName}
+                    onChange={handleChange}
+                    className='form-control bg-light'
+                    id='inputName4'
+                    placeholder='Enter item name'
+                  />
+                </div>
+                <div className='form-group col-md-6'>
+                  <label htmlFor='inputPhone4'>
+                    <strong>
+                      Item img link<span className='text-danger'>*</span>
+                    </strong>
+                  </label>
+                  <input
+                    type='text'
+                    name='itemImgLink'
+                    value={addProductData.itemImgLink}
+                    onChange={handleChange}
+                    className='form-control bg-light'
+                    id='inputImgLink4'
+                    placeholder='Enter item img link'
+                  />
+                </div>
+                <div className='form-group col-md-6'>
+                  <label htmlFor='inputPhone4'>
+                    <strong>
+                      Item description<span className='text-danger'>*</span>
+                    </strong>
+                  </label>
+                  <input
+                    type='text'
+                    name='itemDescription'
+                    value={addProductData.itemDescription}
+                    onChange={handleChange}
+                    className='form-control bg-light'
+                    id='inputDescription4'
+                    placeholder='Enter item description'
+                  />
+                </div>
+                <div className='form-group col-md-6'>
+                  <label htmlFor='inputPhone4'>
+                    <strong>
+                      Item price<span className='text-danger'>*</span>
+                    </strong>
+                  </label>
+                  <input
+                    type='number'
+                    name='itemPrice'
+                    value={addProductData.itemPrice}
+                    onChange={handleChange}
+                    className='form-control bg-light'
+                    id='inputPrice4'
+                    placeholder='Enter item price'
+                  />
+                </div>
+                <div className='form-group col-md-6'>
+                  <label htmlFor='inputPhone4'>
+                    <strong>
+                      Item stock quantity<span className='text-danger'>*</span>
+                    </strong>
+                  </label>
+                  <input
+                    type='number'
+                    name='itemStockQuantity'
+                    value={addProductData.itemStockQuantity}
+                    onChange={handleChange}
+                    className='form-control bg-light'
+                    id='inputStockQuantity4'
+                    placeholder='Enter item stock quantity'
+                  />
+                </div>
               </div>
-              <div className='form-group col-md-6'>
-                <label htmlFor='inputPhone4'>
-                  <strong>
-                    Item Category<span className='text-danger'>*</span>
-                  </strong>
-                </label>
-                <input
-                  type='text'
-                  name='itemCategory'
-                  value={addProductData.itemCategory}
-                  onChange={handleChange}
-                  className='form-control bg-light'
-                  id='inputCategory4'
-                  placeholder='Enter item category'
-                />
-              </div>
-              <div className='form-group col-md-6'>
-                <label htmlFor='inputPhone4'>
-                  <strong>
-                    Item name<span className='text-danger'>*</span>
-                  </strong>
-                </label>
-                <input
-                  type='text'
-                  name='itemName'
-                  value={addProductData.itemName}
-                  onChange={handleChange}
-                  className='form-control bg-light'
-                  id='inputName4'
-                  placeholder='Enter item name'
-                />
-              </div>
-              <div className='form-group col-md-6'>
-                <label htmlFor='inputPhone4'>
-                  <strong>
-                    Item img link<span className='text-danger'>*</span>
-                  </strong>
-                </label>
-                <input
-                  type='text'
-                  name='itemImgLink'
-                  value={addProductData.itemImgLink}
-                  onChange={handleChange}
-                  className='form-control bg-light'
-                  id='inputImgLink4'
-                  placeholder='Enter item img link'
-                />
-              </div>
-              <div className='form-group col-md-6'>
-                <label htmlFor='inputPhone4'>
-                  <strong>
-                    Item description<span className='text-danger'>*</span>
-                  </strong>
-                </label>
-                <input
-                  type='text'
-                  name='itemDescription'
-                  value={addProductData.itemDescription}
-                  onChange={handleChange}
-                  className='form-control bg-light'
-                  id='inputDescription4'
-                  placeholder='Enter item description'
-                />
-              </div>
-              <div className='form-group col-md-6'>
-                <label htmlFor='inputPhone4'>
-                  <strong>
-                    Item price<span className='text-danger'>*</span>
-                  </strong>
-                </label>
-                <input
-                  type='number'
-                  name='itemPrice'
-                  value={addProductData.itemPrice}
-                  onChange={handleChange}
-                  className='form-control bg-light'
-                  id='inputPrice4'
-                  placeholder='Enter item price'
-                />
-              </div>
-              <div className='form-group col-md-6'>
-                <label htmlFor='inputPhone4'>
-                  <strong>
-                    Item stock quantity<span className='text-danger'>*</span>
-                  </strong>
-                </label>
-                <input
-                  type='number'
-                  name='itemStockQuantity'
-                  value={addProductData.itemStockQuantity}
-                  onChange={handleChange}
-                  className='form-control bg-light'
-                  id='inputStockQuantity4'
-                  placeholder='Enter item stock quantity'
-                />
-              </div>
-            </div>
 
-            {error && (
-              <div className='text-danger mt-2 text-center'>{error}</div>
-            )}
-            <div className='d-flex justify-content-center mt-2'>
-              <button type='submit' className='btn btn-primary'>
-                Save changes
-              </button>
-            </div>
-          </form>
+              {error && (
+                <div className='text-danger mt-2 text-center'>{error}</div>
+              )}
+              <div className='d-flex justify-content-center mt-2'>
+                <button type='submit' className='btn btn-primary'>
+                  Save changes
+                </button>
+              </div>
+            </form>
           </div>
         </Modal.Body>
       </Modal>
