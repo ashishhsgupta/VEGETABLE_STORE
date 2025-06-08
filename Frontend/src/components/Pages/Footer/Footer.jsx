@@ -5,6 +5,7 @@ import fbImg from "../images/F_B.png";
 import yTube from "../images/yt.png";
 import twitter from "../images/tw.png";
 import linkedin from "../images/ldin.png";
+import ScrollTop from "../import-pages/ScrollTop";
 
 const Footer = () => {
   return (
@@ -104,7 +105,7 @@ const Footer = () => {
               </li>
             </ul>
           </div>
-
+             <ScrollTop />
           <hr />
           <p className="text-center">
             All rights are reserved with us- Copyright © 2024-2026 Supermarket
