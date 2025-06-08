@@ -111,7 +111,8 @@ export const updateProducts = async (req, res) => {
       item_description,
       item_price,
       stock_quantity,
-      item_id
+      item_id,
+      discount
     } = req.body
     if (!item_description || item_price === undefined || item_price === null) {
       return res.status(400).json({
@@ -128,7 +129,7 @@ export const updateProducts = async (req, res) => {
     console.log('Request body:', req.body)
 
     const sql = `UPDATE products SET item_category = ?, item_name = ?, item_img= ?,
-  item_description = ?, item_price =?, stock_quantity =? WHERE item_id = ?`
+  item_description = ?, item_price =?, stock_quantity =?, discount =? WHERE item_id = ?`
 
     const values = [
       item_category,
@@ -137,6 +138,7 @@ export const updateProducts = async (req, res) => {
       item_description,
       item_price,
       stock_quantity,
+      discount,
       item_id
     ]
     const result = await db.query(sql, values)

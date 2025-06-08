@@ -10,8 +10,10 @@ import { useDispatch, useSelector } from 'react-redux'
 import {
   addToCart,
   selectedCartItems,
-  selectSearchItem
+  selectSearchItem,
+  increaseItem, decreaseItem
 } from '../Redux/counterSlice/cartSlice'
+import ViewMore from '../import-pages/ViewMore';
 
 const ITEM_PER_LOAD = 6
 
@@ -26,10 +28,14 @@ const Product = () => {
   const [showModal, setShowModal] = useState(false)
   const [selectedProduct, setSelectedProduct] = useState(null)
   const [showAddProductModal, setShowAddProductModal] = useState(false)
+  // const [visibleDiscountCount, setVisibleDiscountCount] = useState()
+  const [addedToCartItem, setAddedToCartItem] = useState([])
+  const cartItems = useSelector(state => state.cart.items);
 
   const dispatch = useDispatch()
   const cart = useSelector(selectedCartItems)
   const searchTerm = useSelector(selectSearchItem)
+  
 
   const filteredItems = product.filter(item =>
     item.item_name.toLowerCase().includes(searchTerm.toLowerCase())
@@ -267,6 +273,7 @@ const Product = () => {
     try {
       const payload = {
         ...selectedProduct,
+        discount: selectedProduct.discount,
         item_price: Number(selectedProduct.item_price?.toString().trim())
       }
       const response = await axios.put(
@@ -312,7 +319,7 @@ const Product = () => {
         <ToastContainer />
         <div className='container mt-4- bg-light homeContainer'>
           <div className='row justify-content-center imgContainer'>
-            <div className='d-flex justify-content-start mt-2 ms-4'>
+            <div className='mt-2 ms-3'>
               {userRole === 'Admin' && (
                 <button
                   className='btn btn-primary text-end'
@@ -322,48 +329,96 @@ const Product = () => {
                 </button>
               )}
             </div>
+          <>
             {filteredItems.length > 0 ? (
-              filteredItems.map(item => (
+              filteredItems.map(item => {
+                
+                const cartItem = cartItems.find(ci => ci.item_id === item.item_id);
+                
+
+                return (
                 <div key={item.item_id} className='col-md-3'>
-                  <div className='homeItems mb-4'>
+                  <div className='homeItems mb-4 position-relative'>
                     <img
                       src={item.item_img}
                       alt='img'
                       className='img-fluid homeImg'
                     />
+                    {item.discount && (
+                      <span className='blinking-discount position-absolute top-0 start-0 bg-warning text-dark px-2 py-1 rounded-end fw-bold'>
+                        ⭐{item.discount ?? 0}% OFF
+                      </span>
+                    )}
                     <h5 className='text-centered productName'>
                       {item.item_name}
                     </h5>
-                    <p className='itemDes'>{item.item_description}</p>
-                    <p>
+                    {/* <p className='itemDes'>{item.item_description}</p> */}
+                    <ViewMore text={item.item_description} maxLength={10}/>
+                    <p className='mt-2'>
                       <strong>Item ID: {item.item_id}</strong>
                     </p>
+                 {userRole === 'Admin' && (
                     <p className='stockQuantity'>
-                      <strong>Stock quantity: {item.stock_quantity}</strong>
-                    </p>
+                        <strong>
+                          Stock quantity: {item.stock_quantity ?? 0}
+                        </strong>
+                      </p>
+                 )}
                     <h6 className='bg-primary text-center p-1 text-white productQty'>
-                      ₹ {item.item_price} / 500g ( per quantity)
+                      ₹ {item.item_price} / 500g
                     </h6>
                     <br />
                     &nbsp;
-                    <button
-                      onClick={() => {
-                        if (!userRole) {
-                          alert('Login is required')
-                          return
+                    {userRole !== 'Admin' &&
+                    addedToCartItem.includes(item.item_id) ? (
+                      <div className='cartContent d-flex justify-content-center gap-2'>
+                        <button
+                          onClick={() => {dispatch(decreaseItem({item_id: item.item_id}));
+
+                        const updatedCartItem = cartItems.find(ci => ci.item_id === item.item_id);
+
+                          if(!updatedCartItem || updatedCartItem.quantity <= 1){
+                            setAddedToCartItem(prev => prev.filter(id => id !== item.item_id));
+                          }
                         }
-                        if (userRole === 'Admin') {
-                          handleUpdateProduct(item)
-                        } else {
-                          handleAddToCart(item)
                         }
-                      }}
-                      type='button'
-                      className='btn btn-warning me-2 buttonItem'
-                    >
-                      {userRole === 'Admin' ? 'EDIT' : 'ADD ITEM'}
-                    </button>
-                    {userRole === 'Admin' ? (
+                          className='btn btn-light border fs-6'
+                        >
+                          <strong>-</strong>
+                        </button>
+                        <button className='btn btn-light border fs-6'>
+                          <strong>Count:{cartItem?.quantity ?? 0}</strong>
+                         
+                        </button>
+                        
+                        <button
+                          onClick={() => dispatch(increaseItem(item))}
+                          className='btn btn-light border fs-6'
+                        >
+                          <strong>+</strong>
+                        </button>
+                      </div>
+                    ) : (
+                      <button
+                        onClick={() => {
+                          if (!userRole) {
+                            alert('Login is required')
+                            return
+                          }
+                          if (userRole === 'Admin') {
+                            handleUpdateProduct(item)
+                          } else {
+                            handleAddToCart(item)
+                            setAddedToCartItem(prev => [...prev, item.item_id])
+                          }
+                        }}
+                        type='button'
+                        className='btn btn-warning me-2 buttonItem'
+                      >
+                        {userRole === 'Admin' ? 'EDIT' : 'ADD ITEM'}
+                      </button>
+                    )}  
+                    {userRole === 'Admin' && (
                       <button
                         onClick={() => handleDeleteProduct(item.item_id)}
                         type='button'
@@ -371,15 +426,15 @@ const Product = () => {
                       >
                         DELETE
                       </button>
-                    ) : (
-                      ''
-                    )}
+                    )} 
                   </div>
                 </div>
-              ))
+                  );
+              })
             ) : (
               <span></span>
             )}
+            </>
             {isLoading && (
               <div className='text-center my-4'>Loading more...</div>
             )}
@@ -465,6 +520,30 @@ const Product = () => {
                         })
                       }
                     />
+                  </div>
+                  <div className='d-flex justify-content-between py-2 fw-bold'>
+                    <div>Add Discount</div>
+                    <div className=''>
+                      <select
+                        value={selectedProduct.discount || ''}
+                        onChange={e =>
+                          setSelectedProduct({
+                            ...selectedProduct,
+                            discount: e.target.value
+                          })
+                        }
+                        className='form-select bg-info text-dark w-auto'
+                      >
+                        <option value=''>select</option>
+                        <option value='0'>0%</option>
+                        <option value='5'>5%</option>
+                        <option value='8'>8%</option>
+                        <option value='9'>9%</option>
+                        <option value='10'>10%</option>
+                        <option value='15'>15%</option>
+                        <option value='20'>20%</option>
+                      </select>
+                    </div>
                   </div>
                   <button
                     className='btn btn-success form-control'
@@ -609,6 +688,7 @@ const Product = () => {
               {error && (
                 <div className='text-danger mt-2 text-center'>{error}</div>
               )}
+
               <div className='d-flex justify-content-center mt-2'>
                 <button type='submit' className='btn btn-primary'>
                   Save changes

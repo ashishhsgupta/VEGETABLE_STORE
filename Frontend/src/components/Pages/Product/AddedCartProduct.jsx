@@ -60,6 +60,7 @@ const AddedCartproduct = ({ item }) => {
                   style={{ width: '300px', height: '200px' }}
                 />
                 <div>
+                 
                   <button
                     onClick={handleEmptyCart}
                     className='btn btn-warning mt-4 w-25 fs-5'
@@ -82,7 +83,8 @@ const AddedCartproduct = ({ item }) => {
                     className='img-fluid cartImg border rounded mb-4'
                     style={{ width: '400px', height: '250px' }}
                   />
-                  <div className='cartContent'>
+                  
+                  <div className='cartContent d-flex justify-content-center gap-2'>
                     <button
                       onClick={() =>
                         dispatch(decreaseItem({ item_id: item.item_id }))
@@ -102,10 +104,12 @@ const AddedCartproduct = ({ item }) => {
                     </button>
                   </div>
                 </div>
-                <div className='cartProductContent w-50'>
-                  <p>
+                <div className='cartProductContent w-50 position-relative'>
+                  <span className='blinking-discount position-absolute top-0 end-0 bg-warning text-dark px-2 py-1 rounded-start fw-bold' style={{margin:'-8px'}}>
+                  ⭐{item.discount ?? 0}% OFF</span>
+                  {/* <p>
                     <strong>Category: {item.item_category}</strong>
-                  </p>
+                  </p> */}
                   <span>
                     <strong>{item.item_name}</strong>
                   </span>
@@ -114,23 +118,26 @@ const AddedCartproduct = ({ item }) => {
                     Stock is limited. Free delivery on orders of Rs 500.
                   </h6>
                   <p>
-                    <strong>Item Price: {item.item_price} /500g</strong>
+                    <strong>Item Price: ₹{item.item_price} /500g</strong>
                   </p>
-                  <div className='bg-primary text-light m-4'>
+                  <div className='bg-primary text-light m-2'>
                     <strong>
-                      Total price:{' '}
+                      Base price:{' '}₹
                       {(item.quantity ?? 0) * (item.item_price ?? 0)} , Wt. :{' '}
                       {(item.weight ?? 0) < 1000
                         ? `${item.weight ?? 0}g`
                         : `${(item.weight / 1000).toFixed(2)} kg`}
                     </strong>
                   </div>
+                   <div className='pb-2'>🌟 <strong>Saving : ₹{((item.item_price * (item.discount ?? 0) / 100) * item.quantity).toFixed(2)}</strong></div>
+                   <div className='pb-4'>✅ <strong>Payable Amount: ₹{((item.item_price * item.quantity) - ((item.item_price * (item.discount ?? 0) / 100) * item.quantity)).toFixed(2)}</strong></div>
                  <span
                     onClick={() => handleRemove(item)}
                     className='removeItem'
                   >
                     <i>Remove</i>
                   </span>
+                 
                 </div>
               </div>
             </div>

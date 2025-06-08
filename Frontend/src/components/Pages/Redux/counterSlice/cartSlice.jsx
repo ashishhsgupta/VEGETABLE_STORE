@@ -12,8 +12,18 @@ export const cartSlice = createSlice({
       const selectedProduct = action.payload
       state.items.push({...selectedProduct, quantity:selectedProduct.quantity ?? 0, weight:selectedProduct.weight ?? 0});
     },
-    removeProduct:(state,action) => {
-      const removeItem = action.payload
+    removeProduct:(state, action) => {
+      const removeItem = action.payload;
+      const existingItem = state.items.find(item => item.item_id === removeItem.item_id);
+      if(existingItem){
+        const basePrice = Number(existingItem.item_price ?? 0);
+        const discount = Number(existingItem.discount ?? 0);
+        const quantity = existingItem.quantity || 1;
+
+       const totalDiscountedPrice = basePrice * quantity * (1 - discount / 100);
+       state.totalPrice = Math.max(0, state.totalPrice - totalDiscountedPrice);
+
+      }
       state.items = state.items.filter(item => item.item_id !== removeItem.item_id);
     },
     increaseItem: (state, action) => {
@@ -25,8 +35,13 @@ export const cartSlice = createSlice({
       const existing = state.items.find(
         item => item.item_id === newItem.item_id
       )
-      const priceToAdd = Number(newItem.item_price ?? 0)
-      const stockLimit = Number(newItem.stock_quantity ?? 0)
+      // const priceToAdd = Number(newItem.item_price ?? 0)
+      // const stockLimit = Number(newItem.stock_quantity ?? 0)
+
+      const basePrice = Number(newItem.item_price ?? 0)
+      const discount = Number(newItem.discount ?? 0)
+      const stockLimit = Number(newItem.stock_quantity ?? 0);
+      const discountedPrice = basePrice * (1 - discount / 100);
 
       if (existing) {
         if (existing.quantity >= stockLimit) {
@@ -36,33 +51,37 @@ export const cartSlice = createSlice({
           )
           return
         }
-        existing.quantity = (existing.quantity || 0) + 1
-        existing.weight = (existing.weight || 0) + 500
+        existing.quantity += 1;
+        existing.weight += 500;
       } else {
         if (stockLimit <= 0) {
           console.warn('Item is out of stock')
           alert('Item is out of stock')
           return
         }
-        state.items.push({ ...newItem, quantity: 1, weight: 500 })
+        state.items.push({ ...newItem, quantity: 1, weight: 500 });
       }
 
-      state.totalPrice += priceToAdd
+      state.totalPrice += discountedPrice;
       console.log('Added Item:', newItem)
     },
     decreaseItem: (state, action) => {
       const item_id = action?.payload?.item_id
-      if (!item_id) return
+      if (!item_id) return;
 
       const existing = state.items.find(item => item.item_id === item_id)
 
       if (existing && existing.quantity > 0) {
+        const basePrice = Number(existing.item_price ?? 0)
+        const discount = Number(existing.discount ?? 0)
+        const discountedPrice = basePrice * (1 - discount / 100);
+
         existing.quantity -= 1
         existing.weight -= 500
-        state.totalPrice -= Number(existing.item_price ?? 0)
+        state.totalPrice -= discountedPrice
 
         if (existing.quantity === 0) {
-          state.items = state.items.filter(item => item.item_id !== item_id)
+          state.items = state.items.filter(item => item.item_id !== item_id);
         }
       }
     },

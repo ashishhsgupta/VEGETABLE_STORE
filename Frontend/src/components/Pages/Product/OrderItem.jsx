@@ -106,7 +106,7 @@ const OrderItem = () => {
                         <td>{index + 1}</td>
                         <td>{item.item_name}</td>
                         <td className='text-center'>{item.quantity}</td>
-                        <td className='text-center'>{item.item_price}</td>
+                        <td className='text-center'>₹{item.item_price}</td>
                         <td className='text-center'>
                           {(item.weight ?? 0) < 1000
                             ? `${item.weight ?? 0}g`
