@@ -41,7 +41,9 @@ const OrderItem = () => {
       const selectedItems = items.map(item => ({
         productId: item.item_id,
         quantity: item.quantity,
-        weight:item.weight
+        weight:item.weight,
+        discount:item.discount,
+        payable_amount:item.payable_amount,
       }));
       console.log('req sent to backend:', {
         user: userDetails,
@@ -96,7 +98,9 @@ const OrderItem = () => {
                       <th>Quantity</th>
                       <th>Price /500g</th>
                       <th>Weight</th>
-                      <th>Subtotal Price</th>
+                      <th>Price</th>
+                      <th>Discount</th>
+                      <th>Payable Amt</th>
                     </tr>
                   </thead>
 
@@ -115,6 +119,8 @@ const OrderItem = () => {
                         <td className='text-center'>
                           ₹{item.item_price * item.quantity}
                         </td>
+                        <td className='text-center'>{item.discount}</td>
+                        <td className='text-center'>{item.payable_amount}</td>
                       </tr>
                     ))}
                   </tbody>

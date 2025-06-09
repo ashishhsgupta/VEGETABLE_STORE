@@ -218,7 +218,7 @@ export const orderItems = async (req, res) => {
         user.phone,
         user.address,
         itemWeight,
-        totalAmount
+        totalAmount,
       ]
     )
 
@@ -232,9 +232,9 @@ export const orderItems = async (req, res) => {
       const product = productRows[0]
 
       await connection.query(
-        `INSERT INTO order_items (order_number, order_id, product_id, quantity, price)
-         VALUES (?, ?, ?, ?, ?)`,
-        [orderNumber, orderId, item.productId, item.quantity, product.item_price]
+        `INSERT INTO order_items (order_number, order_id, product_id, quantity, price, discount, payable_amount)
+         VALUES (?, ?, ?, ?, ?, ?, ?)`,
+        [orderNumber, orderId, item.productId, item.quantity, product.item_price, item.discount, item.payable_amount]
       )
     }
 

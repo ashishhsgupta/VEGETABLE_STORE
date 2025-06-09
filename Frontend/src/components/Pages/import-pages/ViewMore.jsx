@@ -52,11 +52,11 @@ const ViewMore = ({ text = null, maxLength = 200 }) => {
             >
               {isExpand ? (
                 <>
-                  <i className='bi bi-arrow-left-circle-fill'></i> view less
+                  view less
                 </>
               ) : (
                 <>
-                  read more <i className='bi bi-arrow-left-circle-fill'></i>
+                  read more
                 </>
               )}
             </button>

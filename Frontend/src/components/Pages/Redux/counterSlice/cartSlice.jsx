@@ -30,7 +30,7 @@ export const cartSlice = createSlice({
       const newItem = action.payload
       if (!newItem || !newItem.item_id) {
         console.error('increaseItem: invalid payload', newItem)
-        return
+        return;
       }
       const existing = state.items.find(
         item => item.item_id === newItem.item_id
@@ -53,18 +53,25 @@ export const cartSlice = createSlice({
         }
         existing.quantity += 1;
         existing.weight += 500;
+        existing.payable_amount = (existing.quantity * discountedPrice).toFixed(2);
       } else {
         if (stockLimit <= 0) {
           console.warn('Item is out of stock')
           alert('Item is out of stock')
           return
         }
-        state.items.push({ ...newItem, quantity: 1, weight: 500 });
+        state.items.push(
+          { ...newItem,
+             quantity: 1,
+             weight: 500,
+             payable_amount:discountedPrice.toFixed(2)
+          });
       }
 
       state.totalPrice += discountedPrice;
       console.log('Added Item:', newItem)
     },
+
     decreaseItem: (state, action) => {
       const item_id = action?.payload?.item_id
       if (!item_id) return;
@@ -82,6 +89,8 @@ export const cartSlice = createSlice({
 
         if (existing.quantity === 0) {
           state.items = state.items.filter(item => item.item_id !== item_id);
+        }else{
+          existing.payable_amount = (existing.quantity * discountedPrice).toFixed(2);
         }
       }
     },
