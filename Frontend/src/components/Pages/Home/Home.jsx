@@ -6,8 +6,6 @@ const Home = () => {
   return (
     <>
      <div className='containers'>
-        {/* <h4>My Smart Basket</h4>  */}
-        {/* <Product /> */}
         <Producthome />
     </div>
     </>

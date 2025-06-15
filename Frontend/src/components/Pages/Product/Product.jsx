@@ -52,7 +52,7 @@ const Product = () => {
     itemStockQuantity: ''
   })
 
-  const handleChange = e => {
+  const handleChange = (e) => {
     const { name, value } = e.target
     const isNumberField = ['itemId', 'itemPrice', 'itemStockQuantity'].includes(
       name
@@ -415,7 +415,7 @@ const Product = () => {
                         type='button'
                         className='btn btn-warning me-2 buttonItem'
                       >
-                        {userRole === 'Admin' ? 'EDIT' : 'ADD ITEM'}
+                        {userRole === 'Admin' ? 'EDIT' : 'ADD TO CART'}
                       </button>
                     )}  
                     {userRole === 'Admin' && (

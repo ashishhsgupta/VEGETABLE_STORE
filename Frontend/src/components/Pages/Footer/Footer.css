@@ -1,0 +1,47 @@
+.aboutBtn {
+  padding: 8px 16px;
+  border: 2px solid #fff;
+  background-color: #fc6767;
+  font-weight: 500;
+  cursor: pointer;
+  transition: transform 0.3s ease, background-color 0.3s ease;
+}
+.aboutBtn:hover {
+  background-color: #f74444;
+  transform: scale(1.05);
+}
+.aboutBtn.active {
+  background-color: #f13505;
+  color: white;
+  font-weight: bold;
+}
+.aboutPages .aboutBtn {
+  width: 300px;
+  clip-path: polygon(20% 0%, 80% 0%, 85% 23%, 100% 100%, 0% 100%, 16% 18%);
+}
+.accordion-button.bg-success:hover {
+  background-color: rgb(94, 94, 30) !important;
+}
+.custSupport {
+  width: 80px;
+  height: 80px;
+  padding: 15px;
+  border: 2px solid rgb(223, 224, 221);
+  border-radius: 50%;
+}
+.custSupport:hover {
+  background-color: #f3eeee;
+  cursor: pointer;
+}
+.dashed-line {
+  border-top: 1px dashed #928c8c;
+  height: 1px;
+  margin: 0 10px;
+}
+.custSupport strong {
+  opacity: 0.6;
+}
+.supportPara p {
+  opacity: 0.7;
+  font-weight: 400;
+}

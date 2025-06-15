@@ -6,6 +6,7 @@ import yTube from "../images/yt.png";
 import twitter from "../images/tw.png";
 import linkedin from "../images/ldin.png";
 import ScrollTop from "../import-pages/ScrollTop";
+import { ABOUT_PATH, CONTACTUS_PATH, DELIVERY_STATUS_PATH, FAQ_PATH, SUPPORT_PATH } from "../Router/Router-Constant";
 
 const Footer = () => {
   return (
@@ -66,19 +67,19 @@ const Footer = () => {
             <h5 className="footerTitle">Product Category</h5>
             <ul className="list-unstyled">
               <li>
-                <Link to="/fruit">Fruit</Link>
+                <Link to="#">Fruit</Link>
               </li>
               <li>
-                <Link to="/exotic-fruit">Exotic Fruit</Link>
+                <Link to="#">Exotic Fruit</Link>
               </li>
               <li>
-                <Link to="/vegetable">Vegetable</Link>
+                <Link to="#">Vegetable</Link>
               </li>
               <li>
-                <Link to="/exotic-vegetable">Exotic Vegetable</Link>
+                <Link to="#">Exotic Vegetable</Link>
               </li>
               <li>
-                <Link to="/salad-items">Salad items</Link>
+                <Link to="#">Salad items</Link>
               </li>
             </ul>
           </div>
@@ -86,22 +87,22 @@ const Footer = () => {
             <h5 className="footerTitle">Quick Links</h5>
             <ul className="">
               <li>
-                <Link to="/about">About Us</Link>
+                <Link to={ABOUT_PATH}>About Us</Link>
               </li>
-              <li>
+              {/* <li>
                 <Link to="/services">Services</Link>
+              </li> */}
+              <li>
+                <Link to={CONTACTUS_PATH}>Contact Us</Link>
               </li>
               <li>
-                <Link to="/contact">Contact</Link>
+                <Link to={FAQ_PATH}>FAQ's</Link>
               </li>
               <li>
-                <Link to="/faq">FAQ</Link>
+                <Link to={SUPPORT_PATH}>Support</Link>
               </li>
-              <li>
-                <Link to="/blog">Blog</Link>
-              </li>
-              <li>
-                <Link to="/support">Support</Link>
+               <li>
+                <Link to={DELIVERY_STATUS_PATH}>Delivery status</Link>
               </li>
             </ul>
           </div>
