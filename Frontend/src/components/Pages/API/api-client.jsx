@@ -10,7 +10,7 @@ const headers = {
 const _get = (url, config) => {
     const reqURL = `${BASE_URL}${url}`;
     return new Promise((resolve, reject) => {
-      axios.get(reqURL, config || {}, {
+      axios.get(reqURL, {...config, 
      headers:headers,
     })
     .then((response) => {
@@ -18,12 +18,11 @@ const _get = (url, config) => {
         if(error){
             reject(error);
         }else if(status){
-            return data || message;
+            resolve(data || message);
         }else{
             reject(SOMETHING_WENT_WRONG);
         }
     })
-    .then((data) => resolve(data))
     .catch((error) => reject(error));
     });
 };

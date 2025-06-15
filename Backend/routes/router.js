@@ -1,5 +1,5 @@
 import express from "express";
-import { sendOTP, verifyOTP,insertProducts, fetchProducts, updateProducts, deleteProduct, orderItems, getPaginatedProducts } from "../controller/controller.js";
+import { sendOTP, verifyOTP,insertProducts, fetchProducts, updateProducts, deleteProduct, orderItems, getPaginatedProducts, fetchOrderItems } from "../controller/controller.js";
 
 
 const router = express.Router();
@@ -12,6 +12,7 @@ router.get("/vegies/v1/api/products", fetchProducts);
 router.put("/vegies/v1/api/products/:id", updateProducts);
 router.delete("/vegies/v1/api/deleteProduct/:item_id", deleteProduct);
 router.post("/vegies/v1/api/orderItems", orderItems);
+router.get("/vegies/v1/api/orderItems", fetchOrderItems);
 
 
 

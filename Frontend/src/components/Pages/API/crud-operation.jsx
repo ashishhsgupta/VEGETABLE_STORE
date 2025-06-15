@@ -8,13 +8,16 @@ export const getAPIData = async(
 ) => {showLoading(p_bLoadingNotReq);
     if(!p_sURL){
         failureCallback && failureCallback(SOMETHING_WENT_WRONG);
+        return;
     }
     try{
         const response = await _get(p_sURL);
         successCallback && successCallback(response);
-        showLoading(false);
+        // showLoading(false);
     }catch(error){
         failureCallback && failureCallback(error);
+        // showLoading(false);
+    }finally{
         showLoading(false);
     }
 };

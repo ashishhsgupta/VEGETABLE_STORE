@@ -246,3 +246,14 @@ export const orderItems = async (req, res) => {
     res.status(500).json({ message: err.message })
   }
 }
+
+export const fetchOrderItems = async(req, res) => {
+  try{
+     const db = await getDB()
+     const [rows] = await db.query(`SELECT order_address.*, order_items.* FROM order_address JOIN order_items ON order_address.order_number = order_items.order_number`);
+     return res.status(200).json(rows)
+  }catch(error){
+    console.error("Getting error while fetch order item", error.message)
+    return res.status(500).json({error: 'Failed to fetch order item'})
+  }
+}
